@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a1a2f">
+    <meta name="description" content="修仙日记 - 任务与境界记录应用">
+    <title>修仙日记 - 任务与境界记录</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>修仙日记</h1>
+            <div class="cultivation-info">
+                <div class="realm-info">
+                    <span class="realm-label">当前境界:</span>
+                    <span id="current-realm" class="realm-value">练气期第一层</span>
+                </div>
+                <div class="level-info">
+                    <span class="level-label">总等级:</span>
+                    <span id="total-level" class="level-value">1</span>
+                </div>
+                <div class="exp-info">
+                    <span class="exp-label">总经验值:</span>
+                    <span id="total-exp" class="exp-value">0</span>
+                </div>
+                <div class="next-level-info">
+                    <span id="next-level-text" class="next-level-text">距离练气期第二层还需: 100 经验</span>
+                </div>
+                <div class="exp-bar-container">
+                    <div class="exp-bar">
+                        <div id="exp-progress" class="exp-progress"></div>
+                        <span id="exp-text" class="exp-text">0/100</span>
+                    </div>
+                    <span id="exp-percentage" class="exp-percentage">0%</span>
+                </div>
+                <div class="data-storage-info">
+                    <small>数据存储于浏览器本地存储 (localStorage)</small>
+                    <button id="clear-data" class="clear-data-btn">清除历史数据</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tasks">修行任务</button>
+            <button class="tab-btn" data-tab="events">大事件记录</button>
+        </div>
+
+        <div class="tab-content active" id="tasks-content">
+            <div class="task-input-section">
+                <input type="text" id="task-input" placeholder="添加新任务..." class="task-text-input">
+                <button id="add-task" class="add-btn">添加任务</button>
+            </div>
+            
+            <div class="task-types-row">
+                <div class="task-type-card">
+                    <div class="task-type-header">
+                        <input type="radio" name="task-type" value="normal" checked id="task-type-normal" class="task-type-radio">
+                        <label for="task-type-normal" class="task-type-label">普通任务</label>
+                    </div>
+                    <div id="normal-task-section" class="task-details-section">
+                        <input type="number" id="task-exp-input" placeholder="设置经验值" min="1" class="task-exp-input">
+                    </div>
+                </div>
+                
+                <div class="task-type-card">
+                    <div class="task-type-header">
+                        <input type="radio" name="task-type" value="timer" id="task-type-timer" class="task-type-radio">
+                        <label for="task-type-timer" class="task-type-label">计时任务</label>
+                    </div>
+                    <div id="timer-task-section" class="task-details-section" style="display: none;">
+                        <input type="number" id="task-duration-input" placeholder="时长（分钟）" min="1" class="task-duration-input">
+                        <input type="number" id="task-exp-per-minute-input" placeholder="每分钟经验值" min="1" class="task-exp-input">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="task-filters">
+                <button class="filter-btn active" data-filter="all">全部任务</button>
+                <button class="filter-btn" data-filter="pending">未完成</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+            </div>
+            
+            <div id="task-list" class="task-list">
+                <!-- 任务列表将通过JavaScript动态添加 -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="events-content">
+            <div class="event-input-section">
+                <input type="text" id="event-title-input" placeholder="事件标题..." class="event-title-input">
+                <textarea id="event-content-input" placeholder="记录详情..." class="event-content-input"></textarea>
+                <button id="add-event" class="add-btn">添加事件</button>
+            </div>
+            
+            <div id="event-list" class="event-list">
+                <!-- 事件列表将通过JavaScript动态添加 -->
+            </div>
+        </div>
+
+        <div id="level-up-modal" class="modal">
+            <div class="modal-content">
+                <h2>✨ 境界提升！</h2>
+                <p id="level-up-message">恭喜！你已突破至练气期第二层！</p>
+                <button id="level-up-close" class="modal-close-btn">继续修行</button>
+            </div>
+        </div>
+
+        <div id="edit-modal" class="modal">
+            <div class="modal-content">
+                <h2>修改任务</h2>
+                <input type="text" id="edit-task-input" placeholder="任务内容..." class="edit-input">
+                <input type="number" id="edit-exp-input" placeholder="经验值" min="1" class="edit-input">
+                <div class="modal-buttons">
+                    <button id="save-edit" class="modal-save-btn">保存</button>
+                    <button id="cancel-edit" class="modal-cancel-btn">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="realms-info">
+        <h3>修仙境界说明</h3>
+        <div class="realms-list">
+            <p>1. 练气期 - 修仙入门，吸纳天地灵气</p>
+            <p>2. 筑基期 - 稳固道基，奠定修仙基础</p>
+            <p>3. 金丹期 - 凝结金丹，法力大增</p>
+            <p>4. 元婴期 - 元婴出窍，神魂壮大</p>
+            <p>5. 化神期 - 神念化形，可分神化物</p>
+            <p>6. 炼虚期 - 炼虚化实，虚实相生</p>
+            <p>7. 合体期 - 身心合一，法力无边</p>
+            <p>8. 大乘期 - 大道将成，只差一步</p>
+            <p>9. 渡劫期 - 渡天劫，证道之路</p>
+            <p>10. 真仙期 - 飞升仙界，得证仙道</p>
+            <p>11. 金仙期 - 金仙不朽，与天同寿</p>
+            <p>12. 太乙金仙 - 太乙玄功，超然物外</p>
+            <p>13. 大罗金仙 - 大罗道果，至高境界</p>
+            <p>14. 准圣 - 准圣之境，近乎圣人</p>
+            <p>15. 圣人 - 天道之下，万法不侵</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
