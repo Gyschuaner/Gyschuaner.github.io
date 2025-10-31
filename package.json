@@ -1,0 +1,15 @@
+{
+  "name": "rpg-todo-list",
+  "version": "1.0.0",
+  "description": "带有RPG养成元素的待办事项应用",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server",
+    "dev": "live-server"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "type": "module"
+}
