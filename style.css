@@ -407,6 +407,105 @@ h1 {
     border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
+/* 任务难度标签样式 */
+.difficulty-tag {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 10px;
+    text-transform: uppercase;
+}
+
+.difficulty-tag.difficulty-easy {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.difficulty-tag.difficulty-normal {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fcd34d;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.difficulty-tag.difficulty-hard {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 任务难度按钮组样式 */
+.task-difficulty-buttons {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.task-difficulty-buttons label {
+    margin-right: 5px;
+    color: #e2e8f0;
+}
+
+.difficulty-button-group {
+    display: flex;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.difficulty-btn {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.difficulty-btn.easy {
+    background-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+.difficulty-btn.normal {
+    background-color: rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.5);
+}
+
+.difficulty-btn.hard {
+    background-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.difficulty-btn.active {
+    transform: scale(0.98);
+    font-weight: bold;
+}
+
+.difficulty-btn.easy.active {
+    background-color: #22c55e;
+    color: white;
+}
+
+.difficulty-btn.normal.active {
+    background-color: #fbbf24;
+    color: #1e293b;
+}
+
+.difficulty-btn.hard.active {
+    background-color: #ef4444;
+    color: white;
+}
+
+.difficulty-btn:not(:last-child) {
+    border-right: none;
+}
+
 .task-checkbox {
     width: 18px;
     height: 18px;
@@ -785,142 +884,181 @@ h1 {
     background: rgba(15, 23, 42, 0.7);
 }
 
-/* 响应式设计 */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-    
+/* 技能页面样式 */
+.skills-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.skill-points-display {
+    background: linear-gradient(135deg, #6e57e0, #8b5cf6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.skill-points-value {
+    color: #fcd34d;
+    margin-left: 5px;
+    font-size: 1.2em;
+}
+
+.skills-section {
+    margin-bottom: 30px;
+}
+
+.skills-section h3 {
+    color: #4b5563;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.skill-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.skill-header h4 {
+    color: #1f2937;
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.skill-level {
+    background: #8b5cf6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.skill-unlock-condition {
+    background: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 0.9em;
+}
+
+.unlock-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.unlock-value {
+    color: #4b5563;
+    margin-left: 5px;
+}
+
+.skill-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+
+.skill-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.skill-stat {
+    display: flex;
+    align-items: center;
+}
+
+.stat-label {
+    color: #6b7280;
+    margin-right: 8px;
+}
+
+.stat-value {
+    color: #8b5cf6;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.upgrade-btn {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.upgrade-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.upgrade-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.skill-note {
+    margin-top: 12px;
+    color: #6b7280;
+    font-style: italic;
+    text-align: center;
+}
     .container {
         padding: 15px;
-        max-width: 100%;
     }
     
     h1 {
-        font-size: 1.6em;
+        font-size: 1.8em;
     }
     
     .task-input-section {
         flex-direction: column;
-        gap: 10px;
     }
     
-    .task-text-input, .task-exp-input, .add-btn, .edit-input {
+    .task-text-input, .task-exp-input, .add-btn {
         width: 100%;
-        padding: 12px;
-        font-size: 16px; /* 防止iOS缩放 */
-    }
-    
-    .add-btn {
-        height: auto;
-        padding: 12px;
     }
     
     .cultivation-info {
         text-align: center;
     }
     
-    .realm-info, .level-info, .exp-info, .next-level-info {
+    .realm-info, .exp-info, .next-level-info {
         flex-direction: column;
         gap: 5px;
-        font-size: 14px;
-    }
-    
-    .task-type-card {
-        margin-bottom: 15px;
-    }
-    
-    .task-filters {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
-    .filter-btn {
-        padding: 8px 12px;
-        font-size: 14px;
-    }
-    
-    .task-item {
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-    
-    .task-actions {
-        gap: 5px;
-    }
-    
-    .task-actions button {
-        padding: 6px 10px;
-        font-size: 12px;
-    }
-    
-    .tabs {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .tab-btn {
-        padding: 12px;
-    }
-    
-    .modal-content {
-        margin: 10% auto;
-        width: 90%;
-        max-width: 400px;
-    }
-    
-    /* 移动端优化境界说明部分 */
-    .realms-info {
-        margin-top: 20px;
-        padding: 15px;
-    }
-    
-    .realms-info h3 {
-        font-size: 16px;
-    }
-    
-    .realms-list {
-        grid-template-columns: 1fr; /* 移动端单列显示 */
-        gap: 8px;
-    }
-    
-    .realms-list p {
-        font-size: 14px;
-        padding: 10px;
-    }
-    
-    /* 确保经验条在移动端正确显示 */
-    .exp-bar-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-    }
-    
-    .exp-bar {
-        width: 100%;
-    }
-    
-    .data-storage-info {
-        font-size: 12px;
-    }
-    
-    .clear-data-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-    }
-    
-    /* 大事件记录的移动端优化 */
-    .event-input-section {
-        gap: 10px;
-    }
-    
-    .event-title-input, .event-content-input {
-        width: 100%;
-        padding: 12px;
-        font-size: 16px; /* 防止iOS缩放 */
-    }
-    
-    .event-content-input {
-        min-height: 100px;
     }
 }
