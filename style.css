@@ -1037,28 +1037,281 @@ h1 {
     font-style: italic;
     text-align: center;
 }
+
+/* 添加媒体查询响应式设计 */
+/* 平板设备适配 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
     .container {
+        max-width: 100%;
         padding: 15px;
+        margin: 0;
     }
     
     h1 {
         font-size: 1.8em;
     }
     
-    .task-input-section {
-        flex-direction: column;
-    }
-    
-    .task-text-input, .task-exp-input, .add-btn {
-        width: 100%;
-    }
-    
+    /* 头部信息 */
     .cultivation-info {
         text-align: center;
     }
     
-    .realm-info, .exp-info, .next-level-info {
+    .realm-info, .exp-info, .next-level-info, .level-info {
         flex-direction: column;
         gap: 5px;
+    }
+    
+    .exp-bar-container {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .exp-percentage {
+        text-align: center;
+    }
+    
+    /* 标签页按钮 */
+    .tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .tab-btn {
+        min-width: 100px;
+        white-space: nowrap;
+        font-size: 0.9em;
+    }
+    
+    /* 任务输入区域 */
+    .task-input-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .task-text-input, .task-exp-input, .task-duration-input, .add-btn {
+        width: 100%;
+    }
+    
+    /* 任务类型卡片 */
+    .task-types-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .task-type-card {
+        min-width: 100%;
+    }
+    
+    /* 任务难度按钮 */
+    .task-difficulty-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 0;
+        gap: 5px;
+    }
+    
+    .difficulty-button-group {
+        width: 100%;
+    }
+    
+    .difficulty-btn {
+        flex: 1;
+        font-size: 0.85em;
+        padding: 8px 12px;
+    }
+    
+    /* 任务列表 */
+    .task-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .task-actions {
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+    
+    /* 大事件输入区域 */
+    .event-content-input {
+        min-height: 100px;
+    }
+    
+    /* 境界说明 */
+    .realms-list {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 技能页面 */
+    .skills-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .skill-points-display {
+        text-align: center;
+    }
+    
+    .skill-card {
+        padding: 15px;
+    }
+    
+    .skill-stats {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    /* 模态框 */
+    .modal-content {
+        width: 90%;
+        max-width: 100%;
+        margin: 20px;
+        padding: 20px;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-cancel-btn {
+        margin-left: 0;
+    }
+}
+
+/* 手机设备适配 (更小型屏幕) */
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 12px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    /* 头部信息简化 */
+    .cultivation-info {
+        gap: 8px;
+    }
+    
+    .realm-value, .exp-value, .level-value {
+        font-size: 1.1em;
+    }
+    
+    .next-level-text {
+        font-size: 0.9em;
+    }
+    
+    /* 按钮尺寸调整 */
+    .tab-btn, .filter-btn, .add-btn {
+        font-size: 0.85em;
+        padding: 8px 16px;
+    }
+    
+    /* 输入框尺寸调整 */
+    .task-text-input, .task-exp-input, .event-title-input {
+        font-size: 0.9em;
+        padding: 8px 10px;
+    }
+    
+    /* 任务列表项紧凑化 */
+    .task-item {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    
+    .task-actions {
+        flex-wrap: wrap;
+    }
+    
+    .edit-btn, .delete-btn, .start-btn, .pause-btn, .complete-btn, .cancel-btn {
+        font-size: 0.8em;
+        padding: 4px 8px;
+    }
+    
+    /* 计时器显示 */
+    .timer-display {
+        font-size: 0.85em;
+    }
+    
+    /* 技能卡片紧凑化 */
+    .skill-card {
+        padding: 12px;
+    }
+    
+    .skill-header h4 {
+        font-size: 1.1em;
+    }
+    
+    .skill-description, .skill-unlock-condition {
+        font-size: 0.85em;
+    }
+    
+    /* 境界说明紧凑化 */
+    .realms-info {
+        padding: 12px;
+        margin-top: 20px;
+    }
+    
+    .realms-list p {
+        font-size: 0.85em;
+        padding: 6px;
+    }
+    
+    /* 模态框更紧凑 */
+    .modal-content {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3em;
+    }
+    
+    .modal-content p {
+        font-size: 1em;
+    }
+}
+
+/* 小屏幕设备适配 (如iPhone SE) */
+@media (max-width: 360px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.3em;
+    }
+    
+    .tab-btn {
+        font-size: 0.8em;
+        padding: 6px 12px;
+        min-width: 80px;
+    }
+    
+    .skill-card {
+        padding: 10px;
+    }
+    
+    .upgrade-btn {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+    
+    .task-type-header {
+        font-size: 0.9em;
     }
 }
