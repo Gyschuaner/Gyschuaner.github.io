@@ -2,11 +2,46 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0a1a2f">
-    <meta name="description" content="修仙日记 - 任务与境界记录应用">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>修仙日记 - 任务与境界记录</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 经验暴击效果 */
+        .experience-critical-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .experience-critical-effect.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            animation: criticalPulse 1.5s ease-out;
+        }
+        
+        @keyframes criticalPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -45,11 +80,20 @@
         <div class="tabs">
             <button class="tab-btn active" data-tab="tasks">修行任务</button>
             <button class="tab-btn" data-tab="events">大事件记录</button>
+            <button class="tab-btn" data-tab="skills">技能树</button>
         </div>
 
         <div class="tab-content active" id="tasks-content">
             <div class="task-input-section">
                 <input type="text" id="task-input" placeholder="添加新任务..." class="task-text-input">
+                <div class="task-difficulty-buttons">
+                    <label>难度：</label>
+                    <div class="difficulty-button-group">
+                        <button type="button" class="difficulty-btn easy" data-value="easy">简单</button>
+                        <button type="button" class="difficulty-btn normal active" data-value="normal">普通</button>
+                        <button type="button" class="difficulty-btn hard" data-value="hard">困难</button>
+                    </div>
+                </div>
                 <button id="add-task" class="add-btn">添加任务</button>
             </div>
             
@@ -96,6 +140,131 @@
             
             <div id="event-list" class="event-list">
                 <!-- 事件列表将通过JavaScript动态添加 -->
+            </div>
+        </div>
+        
+        <!-- 技能树标签页内容 -->
+        <div class="tab-content" id="skills-content">
+            <div class="skills-header">
+                <h2>技能树</h2>
+                <div class="skill-points-display">
+                    <span class="skill-points-label">可用技能点:</span>
+                    <span id="skill-points" class="skill-points-value">0</span>
+                </div>
+            </div>
+            
+            <div class="skills-section">
+                <h3>经验分支</h3>
+                
+                <!-- 经验直觉技能卡片 -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <h4>经验直觉</h4>
+                        <span class="skill-level">Lv.<span id="exp-intuition-level">0</span></span>
+                    </div>
+                    
+                    <div class="skill-unlock-condition">
+                        <span class="unlock-label">解锁条件:</span>
+                        <span class="unlock-value">达到筑基期 (301级)</span>
+                    </div>
+                    
+                    <div class="skill-description">
+                        <p>修仙者对天地间经验之力的敏锐感知大幅提升，完成任何任务都能获取更多经验。</p>
+                    </div>
+                    
+                    <div class="skill-stats">
+                        <div class="skill-stat">
+                            <span class="stat-label">经验加成:</span>
+                            <span id="exp-intuition-bonus" class="stat-value">0%</span>
+                        </div>
+                        <div class="skill-stat">
+                            <span class="stat-label">升级消耗:</span>
+                            <span id="exp-intuition-cost" class="stat-value">1</span> 技能点
+                        </div>
+                    </div>
+                    
+                    <button id="upgrade-exp-intuition" class="upgrade-btn">升级技能</button>
+                    
+                    <div class="skill-note">
+                        <small>提示: 每级额外提升3%经验加成，升级消耗前5级递增，之后固定为5点</small>
+                    </div>
+                </div>
+                
+                <!-- 经验增幅技能卡片 -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <h4>经验增幅</h4>
+                        <span class="skill-level">Lv.<span id="exp-boost-level">0</span></span>
+                    </div>
+                    
+                    <div class="skill-unlock-condition">
+                        <span class="unlock-label">解锁条件:</span>
+                        <span id="exp-boost-unlock-info" class="unlock-value">经验直觉至少5级 达到筑基期</span>
+                    </div>
+                    
+                    <div class="skill-description">
+                        <p>运气也是实力的一部分，有时完成任务会触发意想不到的经验爆发。</p>
+                    </div>
+                    
+                    <div class="skill-stats">
+                        <div class="skill-stat">
+                            <span class="stat-label">暴击概率:</span>
+                            <span id="exp-boost-probability" class="stat-value">0%</span>
+                        </div>
+                        <div class="skill-stat">
+                            <span class="stat-label">升级消耗:</span>
+                            <span id="exp-boost-cost" class="stat-value">1</span> 技能点
+                        </div>
+                    </div>
+                    
+                    <button id="upgrade-exp-boost" class="upgrade-btn" disabled>升级技能</button>
+                    
+                    <div class="skill-note">
+                        <small>提示: 每级增加经验暴击概率，有机会获得翻倍经验值</small>
+                    </div>
+                </div>
+                
+                <!-- 任务专精技能卡片 -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <h4>任务专精</h4>
+                        <span class="skill-level">Lv.<span id="task-spec-level">0</span></span>
+                    </div>
+                    
+                    <div class="skill-unlock-condition">
+                        <span class="unlock-label">解锁条件:</span>
+                        <span id="task-spec-unlock-info" class="unlock-value">经验直觉至少5级 达到筑基期中阶</span>
+                    </div>
+                    
+                    <div class="skill-description">
+                        <p>专于挑战高难度任务，在困境中获得更多成长。</p>
+                    </div>
+                    
+                    <div class="skill-stats">
+                        <div class="skill-stat">
+                            <span class="stat-label">简单任务加成:</span>
+                            <span id="task-spec-easy-bonus" class="stat-value">0%</span>
+                        </div>
+                        <div class="skill-stat">
+                            <span class="stat-label">普通任务加成:</span>
+                            <span id="task-spec-normal-bonus" class="stat-value">0%</span>
+                        </div>
+                        <div class="skill-stat">
+                            <span class="stat-label">困难任务加成:</span>
+                            <span id="task-spec-hard-bonus" class="stat-value">0%</span>
+                        </div>
+                        <div class="skill-stat">
+                            <span class="stat-label">升级消耗:</span>
+                            <span id="task-spec-cost" class="stat-value">3</span> 技能点
+                        </div>
+                    </div>
+                    
+                    <button id="upgrade-task-spec" class="upgrade-btn" disabled>升级技能</button>
+                    
+                    <div class="skill-note">
+                        <small>提示: 每级简单/普通/困难任务经验值额外增加1%/2%/3%，初始加成3%/7%/12%</small>
+                    </div>
+                </div>
             </div>
         </div>
 
