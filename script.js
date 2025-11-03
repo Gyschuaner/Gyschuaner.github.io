@@ -17,6 +17,80 @@ const REALMS = [
   "圣人"
 ];
 
+// 装备系统配置
+const EQUIPMENT_TIERS = [
+    { name: '凡品', color: '#8b8b8b' },
+    { name: '灵品', color: '#6b8e23' },
+    { name: '地品', color: '#4682b4' },
+    { name: '天品', color: '#800080' },
+    { name: '玄品', color: '#ff8c00' },
+    { name: '圣品', color: '#ffd700' },
+    { name: '神品', color: '#00ff00' },
+    { name: '道品', color: '#00ffff' },
+    { name: '混元', color: '#ff00ff' },
+    { name: '混沌', color: '#ff4500' }
+];
+
+// 装备命名系统 - 为不同类型和品阶的装备设置独特名称
+const EQUIPMENT_NAMES = {
+    weapon1: [
+        '铁剑', '青钢剑', '玄铁剑', '天陨剑', '玄霜剑', 
+        '圣剑', '神剑', '道剑', '混元剑', '混沌剑'
+    ],
+    weapon2: [
+        '木棍', '灵杖', '地皇杖', '天罡杖', '玄冥杖', 
+        '圣杖', '神杖', '道杖', '混元杖', '混沌杖'
+    ],
+    face: [
+        '粗布巾', '灵纹巾', '地隐面具', '天罗面甲', '玄影面纱', 
+        '圣容面具', '神隐面甲', '道隐面具', '混元面具', '混沌面甲'
+    ],
+    top: [
+        '粗布衣', '灵纹衣', '地蚕宝衣', '天蚕神衣', '玄元道袍', 
+        '圣道法袍', '神华道衣', '道韵法衣', '混元道袍', '混沌道衣'
+    ],
+    belt: [
+        '布腰带', '灵纹带', '地脉腰带', '天罡腰带', '玄阴腰带', 
+        '圣道宝带', '神华玉带', '道韵仙带', '混元天带', '混沌神带'
+    ],
+    bottom: [
+        '粗布裤', '灵纹裤', '地蚕长裤', '天丝宝裤', '玄元道裤', 
+        '圣道法裤', '神华道裤', '道韵法裤', '混元道裤', '混沌道裤'
+    ],
+    shoes: [
+        '布鞋', '灵纹鞋', '地行靴', '天云靴', '玄风靴', 
+        '圣道云靴', '神行仙靴', '道韵云靴', '混元神靴', '混沌天靴'
+    ],
+    accessory: [
+        '木牌', '灵玉牌', '地灵宝佩', '天灵宝印', '玄阴玉佩', 
+        '圣道印鉴', '神华玉佩', '道韵灵佩', '混元灵佩', '混沌神佩'
+    ]
+};
+
+// 获取装备名称函数
+function getEquipmentName(type, tier) {
+    const tierIndex = Math.min(tier, EQUIPMENT_TIERS.length - 1);
+    if (EQUIPMENT_NAMES[type] && EQUIPMENT_NAMES[type][tierIndex]) {
+        // 直接返回装备名称数组中的名称，不再添加品阶前缀
+        // 因为我们的装备名称数组中已经包含了品阶和装备类型的完整描述
+        return EQUIPMENT_NAMES[type][tierIndex];
+    }
+    // 备用命名方案
+    const typeName = EQUIPMENT_TYPES.find(t => t.id === type)?.name || type;
+    return `${EQUIPMENT_TIERS[tierIndex].name}${typeName}`;
+}
+
+const EQUIPMENT_TYPES = [
+    { id: 'weapon1', name: '武器1', category: 'weapon' },
+    { id: 'weapon2', name: '武器2', category: 'weapon' },
+    { id: 'face', name: '面部', category: 'armor' },
+    { id: 'top', name: '上衣', category: 'armor' },
+    { id: 'belt', name: '腰带', category: 'armor' },
+    { id: 'bottom', name: '下装', category: 'armor' },
+    { id: 'shoes', name: '鞋子', category: 'armor' },
+    { id: 'accessory', name: '挂饰', category: 'accessory' }
+];
+
 // 状态数据
 const state = {
     // 修仙境界：realmIndex(大境界索引), stageIndex(小境界索引), levelIndex(等级索引)
@@ -48,6 +122,12 @@ const state = {
             level: 0,
             unlocked: false
         }
+    },
+    // 装备系统
+    coin: 0,
+    equipment: {
+        equipped: {}, // 已装备的装备
+        inventory: [] // 装备背包
     }
 };
 
@@ -221,9 +301,13 @@ function levelUp() {
             
             // 突破大境界，获得50技能点
             state.skillPoints += 50;
+            // 立即更新技能点UI显示
+            updateSkillsUI();
         } else {
             // 突破层，获得5技能点
             state.skillPoints += 5;
+            // 立即更新技能点UI显示
+            updateSkillsUI();
         }
     }
     
@@ -305,7 +389,7 @@ function calculateExpBonus(baseAmount) {
     const bonusPercentage = 3 + (state.skills.experienceIntuition.level - 1) * 3;
     const bonusAmount = baseAmount * (bonusPercentage / 100);
     
-    console.log(`经验直觉加成: +${bonusPercentage}% (+${bonusAmount.toFixed(1)}经验)`);
+    console.log(`经验直觉加成: +${bonusPercentage.toFixed(2)}% (+${bonusAmount.toFixed(2)}经验)`);
     
     return baseAmount + bonusAmount;
 }
@@ -354,12 +438,12 @@ function gainExp(amount, difficulty = 'normal') {
             const bonusPercentage = baseBonus + (state.skills.taskSpecialization.level - 1) * perLevelBonus;
             const bonusAmount = actualAmount * (bonusPercentage / 100);
             
-            console.log(`任务专精加成: +${bonusPercentage}% (+${bonusAmount.toFixed(1)}经验)`);
+            console.log(`任务专精加成: +${bonusPercentage.toFixed(2)}% (+${bonusAmount.toFixed(2)}经验)`);
             actualAmount += bonusAmount;
         }
     }
     
-    console.log(`获得经验: ${amount}${amount > 0 ? ` (实际${actualAmount.toFixed(1)})` : ''}`);
+    console.log(`获得经验: ${amount}${amount > 0 ? ` (实际${actualAmount.toFixed(2)})` : ''}`);
     
     // 处理负经验值（降级）
     if (amount < 0) {
@@ -1411,11 +1495,33 @@ function clearHistoryData() {
     state.skills.taskSpecialization.level = 0;
     state.skills.taskSpecialization.unlocked = false;
     
+    // 重置铜币
+    state.coin = 0;
+    
+    // 重置装备系统
+    if (state.equipment) {
+        state.equipment.equipped = {};
+        state.equipment.inventory = [];
+    }
+    
+    // 重新创建初始装备（回归到1级凡品）
+    createInitialEquipment();
+    
     // 更新UI
     updateCultivationUI();
     renderTasks();
     renderEvents();
     updateSkillsUI();
+    
+    // 更新装备UI
+    renderEquipmentSlots();
+    renderEquipmentInventory();
+    
+    // 更新铜币显示
+    const coinCountElement = document.getElementById('coin-count');
+    if (coinCountElement) {
+        coinCountElement.textContent = state.coin;
+    }
     
     console.log('历史数据已清除');
     alert('历史数据已成功清除！');
@@ -1519,5 +1625,1070 @@ function initApp() {
     switchTab('tasks'); // 默认显示任务标签
 }
 
+// 装备系统DOM元素引用
+// 移到initEquipmentSystem函数中，确保DOM元素已经加载完成
+
+// 当前选中的装备
+let selectedEquipment = null;
+
+// 查找并修复任务取消函数，添加扣除铜币的逻辑
+// 假设任务取消是通过调用带有负经验值的gainExp函数实现的
+// 已经在gainExp函数中添加了相应的扣除逻辑 - 现在扣除的是经验值10倍的铜币
+
+// 装备进阶（提升品阶）
+function promoteEquipment(equipment) {
+    // 检查是否满足进阶条件
+    if (equipment.level % 100 !== 0 || equipment.tier >= EQUIPMENT_TIERS.length - 1) {
+        return false;
+    }
+    
+    // 进阶消耗（比普通升级高10倍）
+    const promotionCost = calculateUpgradeCost(equipment) * 10;
+    if (state.coin < promotionCost) {
+        return false;
+    }
+    
+    // 扣除铜币
+    state.coin -= promotionCost;
+    
+    // 提升品阶
+    equipment.tier += 1;
+    // 更新装备名称为新品阶对应的名称
+    equipment.name = getEquipmentName(equipment.type, equipment.tier);
+    
+    // 进阶后等级变为101级
+    equipment.level += 1;
+    
+    // 每次进阶后等级上限增加100
+    equipment.maxLevel += 100;
+    
+    // 初始化effects对象（如果不存在）
+    if (!equipment.effects) {
+        equipment.effects = {};
+    }
+    
+    // 进阶时添加额外属性加成：当前阶数*10%（第二阶为20%，第三阶为30%，依此类推）
+    const bonusAmount = equipment.tier * 10;
+    
+    // 确保coinBonus属性存在并增加相应加成
+    if (!equipment.effects.coinBonus) {
+        equipment.effects.coinBonus = 0;
+    }
+    equipment.effects.coinBonus += bonusAmount;
+    
+    // 确保expBonus属性存在并增加相应加成
+    if (!equipment.effects.expBonus) {
+        equipment.effects.expBonus = 1;
+    }
+    // 保持之前的升级加成逻辑，加上进阶额外加成
+    const bonusPerLevel = (equipment.tier) * 0.1;
+    equipment.effects.expBonus = (1 + (equipment.level - 1) * bonusPerLevel + bonusAmount).toFixed(2);
+    
+    // 保存状态
+    saveState();
+    
+    return true;
+}
+
+// 创建初始装备
+function createInitialEquipment() {
+    // 为每个装备类型创建初始装备
+    const initialEquipment = [];
+    
+    EQUIPMENT_TYPES.forEach(type => {
+        const equipment = {
+            id: `initial-${type.id}-${Date.now()}`,
+            name: getEquipmentName(type.id, 0),
+            type: type.id,
+            category: type.category,
+            tier: 0,
+            level: 1,
+            maxLevel: 1000, // 装备总等级1000级
+            effects: {
+                expBonus: 1, // 初始加1%经验获取
+                coinBonus: 0 // 初始铜币获取加成
+            }
+        };
+        initialEquipment.push(equipment);
+        // 直接装备这些初始装备
+        state.equipment.equipped[type.id] = equipment;
+    });
+    
+    return initialEquipment;
+}
+
+// 计算装备升级所需铜币
+function calculateUpgradeCost(equipment) {
+    const baseCost = 10;
+    const tierMultiplier = Math.pow(1.5, equipment.tier);
+    const levelMultiplier = Math.pow(1.03, equipment.level - 1);
+    return Math.floor(baseCost * tierMultiplier * levelMultiplier);
+}
+
+// 升级装备（单次）
+function upgradeEquipmentOnce(equipment) {
+    if (equipment.level >= equipment.maxLevel) {
+        return false;
+    }
+    
+    const cost = calculateUpgradeCost(equipment);
+    if (state.coin < cost) {
+        return false;
+    }
+    
+    // 扣除铜币
+    state.coin -= cost;
+    
+    // 升级装备
+    equipment.level += 1;
+    
+    // 提升经验加成效果 - 根据品阶决定每次升级增幅
+    // 初始化effects对象（如果不存在）
+    if (!equipment.effects) {
+        equipment.effects = {};
+    }
+    
+    // 确保coinBonus属性存在
+    if (!equipment.effects.coinBonus) {
+        equipment.effects.coinBonus = 0;
+    }
+    
+    // 凡品(tier 0)每次+0.1%，第二阶(tier 1)每次+0.2%，以此类推
+    const bonusPerLevel = (equipment.tier + 1) * 0.1;
+    // 计算基础加成加上进阶带来的额外加成
+    const baseBonus = 1 + (equipment.level - 1) * bonusPerLevel;
+    const promotionBonus = equipment.effects.coinBonus || 0; // 进阶加成通常在经验和铜币上相同
+    equipment.effects.expBonus = (baseBonus + promotionBonus).toFixed(2);
+    
+    // 确保至少为1%
+    if (parseFloat(equipment.effects.expBonus) < 1) {
+        equipment.effects.expBonus = "1.00";
+    }
+    
+    // 保存状态
+    saveState();
+    
+    return true;
+}
+
+// 批量升级装备（多次）
+function upgradeEquipmentMultiple(equipment, levels) {
+    if (!equipment || !levels || levels <= 0) return false;
+    
+    // 计算总消耗
+    let totalCost = 0;
+    let tempLevel = equipment.level;
+    const originalLevel = equipment.level;
+    
+    for (let i = 0; i < levels; i++) {
+        // 检查是否会达到需要进阶的等级
+        if ((tempLevel + 1) % 100 === 0) break;
+        // 检查是否会超过最大等级
+        if (tempLevel >= equipment.maxLevel) break;
+        
+        // 计算当前等级的升级费用
+        const tempEquipment = { ...equipment, level: tempLevel };
+        totalCost += calculateUpgradeCost(tempEquipment);
+        
+        tempLevel++;
+    }
+    
+    // 如果没有实际可升级的等级
+    if (tempLevel === originalLevel) return false;
+    
+    // 检查铜币是否足够
+    if (state.coin < totalCost) return false;
+    
+    // 执行多次升级
+    for (let i = 0; i < tempLevel - originalLevel; i++) {
+        upgradeEquipmentOnce(equipment);
+    }
+    
+    return true;
+}
+
+// 升级装备（兼容原函数调用）
+function upgradeEquipment(equipment) {
+    return upgradeEquipmentOnce(equipment);
+}
+
+// 装备/卸下装备
+function toggleEquipment(equipment) {
+    const slotType = equipment.type;
+    
+    // 如果该装备已装备，则卸下
+    if (state.equipment.equipped[slotType] && state.equipment.equipped[slotType].id === equipment.id) {
+        // 从已装备中移除
+        delete state.equipment.equipped[slotType];
+        // 添加到背包
+        state.equipment.inventory.push(equipment);
+        return 'unequipped';
+    }
+    
+    // 如果该槽位已有装备，将其放入背包
+    if (state.equipment.equipped[slotType]) {
+        const oldEquipment = state.equipment.equipped[slotType];
+        // 从背包中移除新装备，添加旧装备
+        const newEquipmentIndex = state.equipment.inventory.findIndex(e => e.id === equipment.id);
+        if (newEquipmentIndex !== -1) {
+            state.equipment.inventory.splice(newEquipmentIndex, 1);
+        }
+        state.equipment.inventory.push(oldEquipment);
+    } else {
+        // 从背包中移除装备
+        const equipmentIndex = state.equipment.inventory.findIndex(e => e.id === equipment.id);
+        if (equipmentIndex !== -1) {
+            state.equipment.inventory.splice(equipmentIndex, 1);
+        }
+    }
+    
+    // 装备新装备
+    state.equipment.equipped[slotType] = equipment;
+    return 'equipped';
+}
+
+// 删除装备
+function deleteEquipment(equipment) {
+    // 从背包中移除
+    const inventoryIndex = state.equipment.inventory.findIndex(e => e.id === equipment.id);
+    if (inventoryIndex !== -1) {
+        state.equipment.inventory.splice(inventoryIndex, 1);
+        return true;
+    }
+    
+    // 检查是否已装备
+    for (const slot in state.equipment.equipped) {
+        if (state.equipment.equipped[slot] && state.equipment.equipped[slot].id === equipment.id) {
+            delete state.equipment.equipped[slot];
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// 计算装备总经验加成
+function calculateEquipmentExpBonus() {
+    let totalBonus = 0;
+    
+    for (const slot in state.equipment.equipped) {
+        const equipment = state.equipment.equipped[slot];
+        if (equipment && equipment.effects && equipment.effects.expBonus) {
+            totalBonus += parseFloat(equipment.effects.expBonus);
+        }
+    }
+    
+    return totalBonus;
+}
+
+// 渲染装备槽位
+function renderEquipmentSlots() {
+    EQUIPMENT_TYPES.forEach(type => {
+        const slotElement = document.getElementById(`${type.id}-equipped`);
+        const equipment = state.equipment.equipped[type.id];
+        
+        if (slotElement) {
+            if (equipment) {
+                // 确保移除之前的事件监听器
+                slotElement.onclick = null;
+                
+                slotElement.className = `equipment-item equipment-tier-${equipment.tier + 1}`;
+                slotElement.innerHTML = `
+                    <div class="equipment-item-name">${equipment.name}</div>
+                    <div class="equipment-item-level">Lv.${equipment.level}</div>
+                    <div class="equipment-item-effect">经验+${equipment.effects.expBonus}%</div>
+                    ${parseFloat(equipment.effects.coinBonus) > 0 ? `<div class="equipment-item-effect">铜币+${equipment.effects.coinBonus}%</div>` : ''}
+                `;
+                // 使用闭包确保正确的equipment引用
+                const currentEquipment = equipment;
+                slotElement.onclick = function() {
+                    showEquipmentDetail(currentEquipment);
+                };
+            } else {
+                slotElement.className = 'equipment-item empty';
+                slotElement.innerHTML = '<span class="empty-text">未装备</span>';
+                slotElement.onclick = null;
+            }
+        }
+    });
+}
+
+// 渲染装备背包
+function renderEquipmentInventory(filter = 'all') {
+    // 直接获取元素，避免依赖equipmentElements对象
+    const inventoryElement = document.getElementById('equipment-inventory');
+    if (!inventoryElement) return;
+    
+    inventoryElement.innerHTML = '';
+    
+    let filteredEquipment = state.equipment.inventory;
+    
+    if (filter !== 'all') {
+        filteredEquipment = state.equipment.inventory.filter(item => item.category === filter);
+    }
+    
+    filteredEquipment.forEach(equipment => {
+        const itemElement = document.createElement('div');
+        itemElement.className = `equipment-item equipment-tier-${equipment.tier + 1}`;
+        itemElement.innerHTML = `
+            <div class="equipment-item-name">${equipment.name}</div>
+            <div class="equipment-item-level">Lv.${equipment.level}</div>
+            <div class="equipment-item-effect">经验+${equipment.effects.expBonus}%</div>
+            ${parseFloat(equipment.effects.coinBonus) > 0 ? `<div class="equipment-item-effect">铜币+${equipment.effects.coinBonus}%</div>` : ''}
+        `;
+        // 使用闭包确保正确的equipment引用
+        const currentEquipment = equipment;
+        itemElement.onclick = function() {
+            showEquipmentDetail(currentEquipment);
+        };
+        inventoryElement.appendChild(itemElement);
+    });
+    
+    if (filteredEquipment.length === 0) {
+        inventoryElement.innerHTML = '<div class="empty-inventory">背包空空如也</div>';
+    }
+}
+
+// 显示装备详情
+function showEquipmentDetail(equipment) {
+    selectedEquipment = equipment;
+    
+    // 直接获取DOM元素，避免依赖equipmentElements对象
+    const modal = document.getElementById('equipment-detail-modal');
+    const title = document.getElementById('equipment-detail-title');
+    const content = document.getElementById('equipment-detail-content');
+    const equipBtn = document.getElementById('equipment-equip-btn');
+    const upgradeBtn = document.getElementById('equipment-upgrade-btn');
+    
+    if (!modal || !title || !content || !equipBtn) return;
+    
+    title.textContent = equipment.name;
+    
+    // 检查是否可以进阶
+    const canPromote = equipment.level % 100 === 0 && equipment.tier < EQUIPMENT_TIERS.length - 1;
+    
+    // 准备进阶信息
+    let promotionInfo = '';
+    if (canPromote) {
+        const promotionCost = calculateUpgradeCost(equipment) * 10;
+        const hasEnoughCoin = state.coin >= promotionCost;
+        promotionInfo = `
+        <div class="equipment-promotion-info">
+            <button id="equipment-promote-btn" ${!hasEnoughCoin ? 'disabled' : ''}>
+                ${hasEnoughCoin ? '进阶' : '铜币不足'}
+            </button>
+        </div>
+        `;
+    }
+    
+    content.innerHTML = `
+        <div class="equipment-detail-info">
+            <p><strong>类型:</strong> ${EQUIPMENT_TYPES.find(t => t.id === equipment.type).name}</p>
+            <p><strong>品阶:</strong> ${EQUIPMENT_TIERS[equipment.tier].name}</p>
+            <p><strong>等级:</strong> ${equipment.level}/${equipment.maxLevel}</p>
+        </div>
+        <div class="equipment-detail-stats">
+            <h4>属性</h4>
+            <p>经验获取加成: +${equipment.effects.expBonus}%</p>
+            ${parseFloat(equipment.effects.coinBonus) > 0 ? `<p>铜币获取加成: +${equipment.effects.coinBonus}%</p>` : ''}
+        </div>
+        <div class="equipment-upgrade-info">
+            <h4>升级信息</h4>
+            <p>下一级消耗: ${calculateUpgradeCost(equipment)} 铜币</p>
+            <p>下一级效果: ${canPromote ? `进阶到${EQUIPMENT_TIERS[equipment.tier + 1].name}，额外获得经验+${((equipment.tier + 1) * 10).toFixed(0)}%和铜币+${((equipment.tier + 1) * 10).toFixed(0)}%` : `+${(parseFloat(equipment.effects.expBonus) + (equipment.tier + 1) * 0.1).toFixed(2)}% 经验`}</p>
+            ${!canPromote && parseFloat(equipment.effects.coinBonus) > 0 ? `<p>铜币加成: +${equipment.effects.coinBonus}%</p>` : ''}
+        </div>
+        ${promotionInfo}
+    `;
+    
+    // 检查是否已装备
+    const isEquipped = state.equipment.equipped[equipment.type] && 
+                      state.equipment.equipped[equipment.type].id === equipment.id;
+    
+    equipBtn.textContent = isEquipped ? '卸下' : '装备';
+    
+    // 禁用升级按钮（如果达到100级且可以进阶）
+    if (upgradeBtn) {
+        upgradeBtn.disabled = canPromote;
+        upgradeBtn.title = canPromote ? '达到100级，请先进行进阶' : '';
+    }
+    
+    // 添加进阶按钮事件监听
+    const promoteBtn = document.getElementById('equipment-promote-btn');
+    if (promoteBtn) {
+        promoteBtn.addEventListener('click', function() {
+            const success = promoteEquipment(equipment);
+            if (success) {
+                // 更新UI
+                renderEquipmentSlots();
+                renderEquipmentInventory();
+                
+                // 更新铜币显示
+                const coinCountElement = document.getElementById('coin-count');
+                if (coinCountElement) {
+                    coinCountElement.textContent = state.coin;
+                }
+                
+                // 重新显示装备详情
+                showEquipmentDetail(equipment);
+            }
+        });
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// 显示升级模态框
+function showUpgradeModal(equipment) {
+    selectedEquipment = equipment;
+    
+    // 直接获取DOM元素，避免依赖equipmentElements对象
+    const modal = document.getElementById('equipment-upgrade-modal');
+    const info = document.getElementById('upgrade-equipment-info');
+    const cost = document.getElementById('upgrade-coin-cost');
+    const result = document.getElementById('upgrade-result');
+    const confirmBtn = document.getElementById('confirm-upgrade-btn');
+    const confirmUpgrade10Btn = document.getElementById('confirm-upgrade-10-btn');
+    
+    if (!modal || !info || !cost || !result || !confirmBtn) return;
+    
+    const upgradeCost = calculateUpgradeCost(equipment);
+    const canPromote = equipment.level % 100 === 0 && equipment.tier < EQUIPMENT_TIERS.length - 1;
+    const canUpgrade = state.coin >= upgradeCost && equipment.level < equipment.maxLevel && !canPromote;
+    
+    // 计算升10级的总消耗
+    let upgrade10Cost = 0;
+    let tempLevel = equipment.level;
+    let canUpgrade10 = false;
+    let actualLevels = 0;
+    
+    if (!canPromote && equipment.level < equipment.maxLevel) {
+        for (let i = 0; i < 10; i++) {
+            // 检查是否会达到需要进阶的等级
+            if ((tempLevel + 1) % 100 === 0) break;
+            // 检查是否会超过最大等级
+            if (tempLevel >= equipment.maxLevel) break;
+            
+            // 计算当前等级的升级费用
+            const tempEquipment = { ...equipment, level: tempLevel };
+            upgrade10Cost += calculateUpgradeCost(tempEquipment);
+            
+            tempLevel++;
+            actualLevels++;
+        }
+        
+        canUpgrade10 = state.coin >= upgrade10Cost && actualLevels > 0;
+    }
+    
+    info.innerHTML = `
+        <p><strong>装备:</strong> ${equipment.name}</p>
+        <p><strong>当前等级:</strong> Lv.${equipment.level}</p>
+        <p><strong>当前效果:</strong> 经验+${equipment.effects.expBonus}%${parseFloat(equipment.effects.coinBonus) > 0 ? `<br>铜币+${equipment.effects.coinBonus}%` : ''}</p>
+    `;
+    
+    // 显示单次升级消耗
+    cost.innerHTML = `
+        <p>单次升级消耗: 铜币: ${upgradeCost}</p>
+        ${canUpgrade10 ? `<p>一次性升${actualLevels}级消耗: 铜币: ${upgrade10Cost}</p>` : ''}
+    `;
+    
+    const nextLevel = equipment.level + 1;
+    
+    // 根据不同情况显示不同的升级结果
+    let resultText = '';
+    if (canPromote) {
+        // 达到可进阶等级
+        resultText = `该装备已达到100级，需要先进行进阶！`;
+    } else if (equipment.level >= equipment.maxLevel) {
+        // 已达到最大等级
+        resultText = `该装备已达到最大等级！`;
+    } else {
+        const nextBonus = (parseFloat(equipment.effects.expBonus) + (equipment.tier + 1) * 0.1).toFixed(2);
+        
+        // 检查是否达到下一个可进阶的等级
+        let levelInfo = '';
+        if (nextLevel % 100 === 0) {
+            levelInfo = ' (达到100级可进阶!)';
+        }
+        
+        resultText = `升级后: Lv.${nextLevel} (经验+${nextBonus}%)${levelInfo}`;
+    }
+    
+    result.textContent = resultText;
+    
+    // 设置按钮状态
+    confirmBtn.disabled = !canUpgrade;
+    confirmBtn.textContent = canUpgrade ? '确认升级' : (canPromote ? '请先进阶' : '无法升级');
+    
+    if (confirmUpgrade10Btn) {
+        confirmUpgrade10Btn.disabled = !canUpgrade10;
+        confirmUpgrade10Btn.textContent = canUpgrade10 ? `一次性升${actualLevels}级` : (actualLevels > 0 ? '铜币不足' : '无法升级10级');
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// 初始化装备系统
+function initEquipmentSystem() {
+    // 确保装备数据结构存在
+    if (!state.equipment) {
+        state.equipment = { equipped: {}, inventory: [] };
+    }
+    
+    if (!state.equipment.equipped) state.equipment.equipped = {};
+    if (!state.equipment.inventory) state.equipment.inventory = [];
+    
+    // 检查是否需要创建初始装备
+    if (Object.keys(state.equipment.equipped).length === 0 && state.equipment.inventory.length === 0) {
+        createInitialEquipment();
+    }
+    
+    // 更新铜币显示
+    const coinCountElement = document.getElementById('coin-count');
+    if (coinCountElement) {
+        coinCountElement.textContent = state.coin;
+    }
+    
+    // 渲染装备
+    renderEquipmentSlots();
+    renderEquipmentInventory();
+}
+
+// 初始化装备系统事件监听器
+function initEquipmentEventListeners() {
+    // 背包筛选按钮
+    document.querySelectorAll('.inventory-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.inventory-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderEquipmentInventory(btn.dataset.filter);
+        });
+    });
+    
+    // 装备详情模态框按钮 - 直接获取DOM元素，避免依赖equipmentElements对象
+    const equipBtn = document.getElementById('equipment-equip-btn');
+    if (equipBtn) {
+        equipBtn.addEventListener('click', () => {
+            if (selectedEquipment) {
+                const action = toggleEquipment(selectedEquipment);
+                renderEquipmentSlots();
+                renderEquipmentInventory();
+                // 更新模态框按钮文本
+                equipBtn.textContent = action === 'equipped' ? '卸下' : '装备';
+            }
+        });
+    }
+    
+    const upgradeBtn = document.getElementById('equipment-upgrade-btn');
+    if (upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+            if (selectedEquipment) {
+                showUpgradeModal(selectedEquipment);
+            }
+        });
+    }
+    
+    const deleteBtn = document.getElementById('equipment-delete-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            if (selectedEquipment && confirm('确定要删除这个装备吗？')) {
+                deleteEquipment(selectedEquipment);
+                renderEquipmentSlots();
+                renderEquipmentInventory();
+                const detailModal = document.getElementById('equipment-detail-modal');
+                if (detailModal) {
+                    detailModal.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    const detailCloseBtn = document.getElementById('equipment-detail-close');
+    if (detailCloseBtn) {
+        detailCloseBtn.addEventListener('click', () => {
+            const detailModal = document.getElementById('equipment-detail-modal');
+            if (detailModal) {
+                detailModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // 升级模态框按钮
+    const confirmUpgradeBtn = document.getElementById('confirm-upgrade-btn');
+    if (confirmUpgradeBtn) {
+        confirmUpgradeBtn.addEventListener('click', () => {
+            if (selectedEquipment) {
+                const success = upgradeEquipmentOnce(selectedEquipment);
+                if (success) {
+                    // 更新铜币显示
+                    const coinCountElement = document.getElementById('coin-count');
+                    if (coinCountElement) {
+                        coinCountElement.textContent = state.coin;
+                    }
+                    
+                    // 更新装备显示
+                    renderEquipmentSlots();
+                    renderEquipmentInventory();
+                    
+                    // 关闭模态框
+                    const upgradeModal = document.getElementById('equipment-upgrade-modal');
+                    if (upgradeModal) {
+                        upgradeModal.style.display = 'none';
+                    }
+                    
+                    // 重新显示装备详情
+                    showEquipmentDetail(selectedEquipment);
+                }
+            }
+        });
+    }
+    
+    // 一次性升10级按钮
+    const confirmUpgrade10Btn = document.getElementById('confirm-upgrade-10-btn');
+    if (confirmUpgrade10Btn) {
+        confirmUpgrade10Btn.addEventListener('click', () => {
+            if (selectedEquipment) {
+                const success = upgradeEquipmentMultiple(selectedEquipment, 10);
+                if (success) {
+                    // 更新铜币显示
+                    const coinCountElement = document.getElementById('coin-count');
+                    if (coinCountElement) {
+                        coinCountElement.textContent = state.coin;
+                    }
+                    
+                    // 更新装备显示
+                    renderEquipmentSlots();
+                    renderEquipmentInventory();
+                    
+                    // 关闭模态框
+                    const upgradeModal = document.getElementById('equipment-upgrade-modal');
+                    if (upgradeModal) {
+                        upgradeModal.style.display = 'none';
+                    }
+                    
+                    // 重新显示装备详情
+                    showEquipmentDetail(selectedEquipment);
+                }
+            }
+        });
+    }
+    
+    const cancelUpgradeBtn = document.getElementById('cancel-upgrade-btn');
+    if (cancelUpgradeBtn) {
+        cancelUpgradeBtn.addEventListener('click', () => {
+            const upgradeModal = document.getElementById('equipment-upgrade-modal');
+            if (upgradeModal) {
+                upgradeModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // 点击模态框外部关闭
+    window.addEventListener('click', (e) => {
+        const detailModal = document.getElementById('equipment-detail-modal');
+        const upgradeModal = document.getElementById('equipment-upgrade-modal');
+        
+        if (detailModal && e.target === detailModal) {
+            detailModal.style.display = 'none';
+        }
+        if (upgradeModal && e.target === upgradeModal) {
+            upgradeModal.style.display = 'none';
+        }
+    });
+}
+
+// 修改gainExp函数，加入铜币获取
+function originalGainExp(amount, difficulty = 'normal') {
+    let actualAmount = amount;
+    
+    // 对正经验值应用经验直觉技能加成
+    if (amount > 0) {
+        actualAmount = calculateExpBonus(amount);
+        
+        // 确保技能对象存在
+        if (!state.skills) state.skills = {};
+        if (!state.skills.experienceBoost) state.skills.experienceBoost = { level: 0, unlocked: false };
+        if (!state.skills.taskSpecialization) state.skills.taskSpecialization = { level: 0, unlocked: false };
+        
+        // 应用经验增幅技能（经验暴击）
+        if (state.skills.experienceBoost.unlocked && state.skills.experienceBoost.level > 0) {
+            const criticalProbability = state.skills.experienceBoost.level;
+            if (Math.random() * 100 < criticalProbability) {
+                // 触发经验暴击
+                actualAmount *= 2;
+                showExperienceCriticalEffect();
+            }
+        }
+        
+        // 应用任务专精技能加成
+        if (state.skills.taskSpecialization.unlocked && state.skills.taskSpecialization.level > 0) {
+            let baseBonus = 0;
+            let perLevelBonus = 0;
+            
+            // 根据难度设置基础加成和每级加成
+            if (difficulty === 'easy') {
+                baseBonus = 3;      // 简单任务基础3%
+                perLevelBonus = 1;  // 每级额外1%
+            } else if (difficulty === 'hard') {
+                baseBonus = 12;     // 困难任务基础12%
+                perLevelBonus = 3;  // 每级额外3%
+            } else {
+                baseBonus = 7;      // 普通任务基础7%
+                perLevelBonus = 2;  // 每级额外2%
+            }
+            
+            // 计算总加成百分比
+            const bonusPercentage = baseBonus + (state.skills.taskSpecialization.level - 1) * perLevelBonus;
+            const bonusAmount = actualAmount * (bonusPercentage / 100);
+            
+            console.log(`任务专精加成: +${bonusPercentage.toFixed(2)}% (+${bonusAmount.toFixed(2)}经验)`);
+            actualAmount += bonusAmount;
+        }
+        
+        // 应用装备经验加成
+        const equipmentBonus = calculateEquipmentExpBonus();
+        if (equipmentBonus > 0) {
+            const equipmentBonusAmount = actualAmount * (equipmentBonus / 100);
+            console.log(`装备加成: +${equipmentBonus.toFixed(2)}% (+${equipmentBonusAmount.toFixed(2)}经验)`);
+            actualAmount += equipmentBonusAmount;
+        }
+    }
+    
+    console.log(`获得经验: ${amount}${amount > 0 ? ` (实际${actualAmount.toFixed(2)})` : ''}`);
+    
+    // 处理负经验值（降级）
+    if (amount < 0) {
+        // 记录原始状态用于调试
+        const originalState = { ...state.cultivation };
+        
+        // 直接调整总经验值
+        state.totalExp = Math.max(0, state.totalExp + amount);
+        
+        // 调整当前经验值
+        state.currentExp += amount;
+        
+        // 如果当前经验值不足以维持当前等级，需要降级
+        while (state.currentExp < 0) {
+            console.log('执行降级');
+            
+            // 计算当前等级所需的总经验
+            const currentLevelExp = calculateExpToNextLevel(
+                state.cultivation.realmIndex,
+                state.cultivation.stageIndex,
+                state.cultivation.levelIndex
+            );
+            
+            // 保存当前的负经验值
+            const remainingNegativeExp = state.currentExp;
+            
+            // 检查是否需要降低等级
+            if (state.cultivation.levelIndex > 0) {
+                // 降低一个等级
+                state.cultivation.levelIndex--;
+                
+                // 获取上一级所需的经验值
+                const prevLevelExp = calculateExpToNextLevel(
+                    state.cultivation.realmIndex,
+                    state.cultivation.stageIndex,
+                    state.cultivation.levelIndex
+                );
+                
+                // 设置当前经验值为上一级的满值加上剩余的负经验值
+                // 这样可以正确处理跨多级降级
+                state.currentExp = Number((prevLevelExp + remainingNegativeExp).toFixed(2));
+            } else if (state.cultivation.stageIndex > 0) {
+                // 降低一个小境界
+                state.cultivation.stageIndex--;
+                state.cultivation.levelIndex = 9; // 降到该小境界的最高级
+                
+                // 获取上一小境界最高级所需的经验值
+                const prevStageExp = calculateExpToNextLevel(
+                    state.cultivation.realmIndex,
+                    state.cultivation.stageIndex,
+                    state.cultivation.levelIndex
+                );
+                
+                // 设置当前经验值
+                state.currentExp = Number((prevStageExp + remainingNegativeExp).toFixed(2));
+            } else if (state.cultivation.realmIndex > 0) {
+                // 降低一个大境界
+                state.cultivation.realmIndex--;
+                state.cultivation.stageIndex = 9;
+                state.cultivation.levelIndex = 9;
+                
+                // 获取上一大境界最高级所需的经验值
+                const prevRealmExp = calculateExpToNextLevel(
+                    state.cultivation.realmIndex,
+                    state.cultivation.stageIndex,
+                    state.cultivation.levelIndex
+                );
+                
+                // 设置当前经验值
+                state.currentExp = Number((prevRealmExp + remainingNegativeExp).toFixed(2));
+            } else {
+                // 已经是最低境界，不能再降级
+                state.currentExp = 0;
+                break;
+            }
+        }
+        
+        console.log(`降级完成: ${originalState.realmIndex}-${originalState.stageIndex}-${originalState.levelIndex} -> ${state.cultivation.realmIndex}-${state.cultivation.stageIndex}-${state.cultivation.levelIndex}`);
+        
+        // 取消任务时扣除铜币
+        if (Math.abs(amount) > 0) {
+            const coinDeduction = Math.floor(Math.abs(amount) * 10); // 扣除经验值10倍的铜币
+            state.coin = Math.max(0, state.coin - coinDeduction);
+            console.log(`取消任务扣除铜币: ${coinDeduction}`);
+            // 更新铜币显示
+            const coinCountElement = document.getElementById('coin-count');
+            if (coinCountElement) {
+                coinCountElement.textContent = state.coin;
+            }
+        }
+    } else {
+        // 正常升级逻辑
+        state.currentExp = Number((state.currentExp + actualAmount).toFixed(2));
+        state.totalExp = Number((state.totalExp + actualAmount).toFixed(2));
+        
+        // 获得铜币：经验值的10倍
+        if (amount > 0) {
+            const coinGain = Math.floor(actualAmount * 10);
+            state.coin += coinGain;
+            console.log(`获得铜币: ${coinGain}`);
+            // 更新铜币显示
+            const coinCountElement = document.getElementById('coin-count');
+            if (coinCountElement) {
+                coinCountElement.textContent = state.coin;
+            }
+        }
+        
+        const expToNextLevel = calculateExpToNextLevel(
+            state.cultivation.realmIndex,
+            state.cultivation.stageIndex,
+            state.cultivation.levelIndex
+        );
+        
+        // 检查是否可以升级
+        if (state.currentExp >= expToNextLevel) {
+            levelUp();
+        }
+    }
+    
+    // 更新总等级
+    getTotalLevel();
+    
+    saveState();
+    updateCultivationUI();
+}
+
+// 替换原始的gainExp函数
+window.gainExp = originalGainExp;
+
+// 修改saveState函数，确保保存装备数据
+function enhancedSaveState() {
+    // 确保经验值在保存前格式化为两位小数
+    const stateToSave = {...state};
+    stateToSave.currentExp = Number(state.currentExp.toFixed(2));
+    stateToSave.totalExp = Number(state.totalExp.toFixed(2));
+    
+    localStorage.setItem('cultivationState', JSON.stringify(stateToSave));
+    console.log('数据已保存到本地存储 (localStorage) 中的 cultivationState 键');
+}
+
+// 修改loadState函数，确保加载装备数据并更新UI
+function enhancedLoadState() {
+    const savedState = localStorage.getItem('cultivationState');
+    if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        
+        // 确保经验值在加载时格式化为两位小数
+        if (parsedState.currentExp !== undefined) {
+            parsedState.currentExp = Number(parseFloat(parsedState.currentExp).toFixed(2));
+        }
+        if (parsedState.totalExp !== undefined) {
+            parsedState.totalExp = Number(parseFloat(parsedState.totalExp).toFixed(2));
+        }
+        
+        Object.assign(state, parsedState);
+        
+        // 确保数组存在
+        if (!state.tasks) state.tasks = [];
+        if (!state.events) state.events = [];
+        
+        // 确保装备系统数据存在
+        if (!state.equipment) {
+            state.equipment = { equipped: {}, inventory: [] };
+        }
+        if (!state.equipment.equipped) state.equipment.equipped = {};
+        if (!state.equipment.inventory) state.equipment.inventory = [];
+        
+        // 确保技能系统存在且完整
+        if (!state.skills) {
+            state.skills = {};
+        }
+        
+        // 修复装备名称 - 确保所有加载的装备使用正确的命名
+        for (const slot in state.equipment.equipped) {
+            const equipment = state.equipment.equipped[slot];
+            if (equipment) {
+                equipment.name = getEquipmentName(equipment.type, equipment.tier);
+            }
+        }
+        
+        // 修复背包中的装备名称
+        state.equipment.inventory.forEach(equipment => {
+            equipment.name = getEquipmentName(equipment.type, equipment.tier);
+        });
+        
+        // 更新装备UI
+        renderEquipmentSlots();
+        renderEquipmentInventory();
+        
+        // 更新铜币显示
+        const coinCountElement = document.getElementById('coin-count');
+        if (coinCountElement) {
+            coinCountElement.textContent = state.coin;
+        }
+    }
+}
+
+// 替换原始的保存和加载函数
+window.saveState = enhancedSaveState;
+window.loadState = enhancedLoadState;
+
+// 修改标签页切换函数，支持装备标签页
+function enhancedSwitchTab(tabId) {
+    // 隐藏所有标签内容
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // 移除所有标签按钮的活跃状态
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 显示选中的标签内容
+    const selectedContent = document.getElementById(`${tabId}-content`);
+    if (selectedContent) {
+        selectedContent.classList.add('active');
+    }
+    
+    // 激活选中的标签按钮
+    const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('active');
+    }
+    
+    // 初始化装备系统
+    if (tabId === 'equipment') {
+        initEquipmentSystem();
+    }
+}
+
+// 替换原始的标签页切换函数
+window.switchTab = enhancedSwitchTab;
+
+// 修改初始化事件监听器函数，添加装备系统事件
+function enhancedInitEventListeners() {
+    // 标签页切换
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    
+    // 清除历史数据按钮
+    document.getElementById('clear-data').addEventListener('click', clearHistoryData);
+    
+    // 任务类型切换
+    elements.taskTypeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.value === 'normal') {
+                elements.normalTaskSection.style.display = 'block';
+                elements.timerTaskSection.style.display = 'none';
+            } else {
+                elements.normalTaskSection.style.display = 'none';
+                elements.timerTaskSection.style.display = 'block';
+            }
+        });
+    });
+    
+    // 任务相关
+    elements.addTaskBtn.addEventListener('click', addTask);
+    elements.taskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addTask();
+    });
+    
+    // 难度按钮点击事件
+    elements.difficultyButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 移除所有按钮的active类
+            elements.difficultyButtons.forEach(b => b.classList.remove('active'));
+            // 为当前点击的按钮添加active类
+            btn.classList.add('active');
+        });
+    });
+    
+    // 任务筛选
+    elements.filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 更新按钮状态
+            elements.filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // 渲染筛选后的任务
+            renderTasks(btn.dataset.filter);
+        });
+    });
+    
+    // 大事件相关
+    elements.addEventBtn.addEventListener('click', addEvent);
+    elements.eventTitleInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            addEvent();
+        }
+    });
+    
+    // 模态框相关
+    elements.levelUpClose.addEventListener('click', () => {
+        elements.levelUpModal.style.display = 'none';
+        updateCultivationUI(); // 确保UI更新
+    });
+    
+    elements.saveEditBtn.addEventListener('click', saveEditedTask);
+    elements.cancelEditBtn.addEventListener('click', closeEditModal);
+    
+    // 技能升级按钮事件监听
+    document.getElementById('upgrade-exp-intuition')?.addEventListener('click', () => upgradeSkill('experienceIntuition'));
+    document.getElementById('upgrade-exp-boost')?.addEventListener('click', () => upgradeSkill('experienceBoost'));
+    document.getElementById('upgrade-task-spec')?.addEventListener('click', () => upgradeSkill('taskSpecialization'));
+    
+    // 点击模态框外部关闭
+    window.addEventListener('click', (e) => {
+        if (e.target === elements.levelUpModal) {
+            elements.levelUpModal.style.display = 'none';
+            updateCultivationUI();
+        }
+        if (e.target === elements.editModal) {
+            closeEditModal();
+        }
+    });
+    
+    // 初始化装备系统事件监听器
+    initEquipmentEventListeners();
+}
+
+// 替换原始的事件监听器初始化函数
+window.initEventListeners = enhancedInitEventListeners;
+
+// 修改初始化应用函数
+function enhancedInitApp() {
+    loadState();
+    updateCultivationUI();
+    updateSkillsUI(); // 初始化技能UI
+    initEventListeners();
+    switchTab('tasks'); // 默认显示任务标签
+}
+
 // 启动应用
-initApp();
+enhancedInitApp();

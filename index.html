@@ -81,6 +81,7 @@
             <button class="tab-btn active" data-tab="tasks">修行任务</button>
             <button class="tab-btn" data-tab="events">大事件记录</button>
             <button class="tab-btn" data-tab="skills">技能树</button>
+            <button class="tab-btn" data-tab="equipment">装备系统</button>
         </div>
 
         <div class="tab-content active" id="tasks-content">
@@ -273,6 +274,122 @@
                 <h2>✨ 境界提升！</h2>
                 <p id="level-up-message">恭喜！你已突破至练气期第二层！</p>
                 <button id="level-up-close" class="modal-close-btn">继续修行</button>
+            </div>
+        </div>
+
+        <!-- 装备系统标签页内容 -->
+        <div class="tab-content" id="equipment-content">
+            <div class="equipment-header">
+                <h2>装备系统</h2>
+                <div class="equipment-stats">
+                    <div class="coin-display">
+                        <span class="coin-label">铜币:</span>
+                        <span id="coin-count" class="coin-value">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="equipment-section">
+                <h3>已装备</h3>
+                <div class="equipment-slots">
+                    <div class="equipment-slot" data-slot="weapon1">
+                        <h4>武器1</h4>
+                        <div id="weapon1-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="weapon2">
+                        <h4>武器2</h4>
+                        <div id="weapon2-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="face">
+                        <h4>面部</h4>
+                        <div id="face-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="top">
+                        <h4>上衣</h4>
+                        <div id="top-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="belt">
+                        <h4>腰带</h4>
+                        <div id="belt-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="bottom">
+                        <h4>下装</h4>
+                        <div id="bottom-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="shoes">
+                        <h4>鞋子</h4>
+                        <div id="shoes-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="accessory">
+                        <h4>挂饰</h4>
+                        <div id="accessory-equipped" class="equipment-item empty">
+                            <span class="empty-text">未装备</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="inventory-section">
+                <h3>装备背包</h3>
+                <div class="inventory-filters">
+                    <button class="inventory-filter-btn active" data-filter="all">全部</button>
+                    <button class="inventory-filter-btn" data-filter="weapon">武器</button>
+                    <button class="inventory-filter-btn" data-filter="armor">防具</button>
+                    <button class="inventory-filter-btn" data-filter="accessory">饰品</button>
+                </div>
+                <div id="equipment-inventory" class="equipment-inventory-list">
+                    <!-- 装备背包将通过JavaScript动态添加 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 装备详情模态框 -->
+        <div id="equipment-detail-modal" class="modal">
+            <div class="modal-content">
+                <h2 id="equipment-detail-title">装备详情</h2>
+                <div id="equipment-detail-content">
+                    <!-- 装备详情将通过JavaScript动态添加 -->
+                </div>
+                <div class="modal-footer">
+                    <button id="equipment-equip-btn" class="modal-equip-btn">装备</button>
+                    <button id="equipment-upgrade-btn" class="modal-upgrade-btn">升级</button>
+                    <button id="equipment-delete-btn" class="modal-delete-btn">删除</button>
+                    <button id="equipment-detail-close" class="modal-close-btn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 装备升级模态框 -->
+        <div id="equipment-upgrade-modal" class="modal">
+            <div class="modal-content">
+                <h2>装备升级</h2>
+                <div id="upgrade-equipment-info">
+                    <!-- 升级装备信息将通过JavaScript动态添加 -->
+                </div>
+                <div class="upgrade-cost">
+                    <p>升级消耗:</p>
+                    <p id="upgrade-coin-cost">铜币: 0</p>
+                    <p id="upgrade-result">升级后等级: 0</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="confirm-upgrade-btn" class="modal-confirm-btn">确认升级</button>
+                    <button id="confirm-upgrade-10-btn" class="modal-confirm-btn">一次性升10级</button>
+                    <button id="cancel-upgrade-btn" class="modal-cancel-btn">取消</button>
+                </div>
             </div>
         </div>
 
