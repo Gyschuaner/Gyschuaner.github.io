@@ -1121,25 +1121,29 @@ h1 {
 .equipment-section,
 .inventory-section {
     background-color: rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .equipment-slots {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
     margin-top: 15px;
 }
 
 .equipment-slot {
     background-color: rgba(255, 255, 255, 0.05);
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
     text-align: center;
     transition: all 0.3s ease;
-    min-width: 150px;
+    min-width: 140px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .equipment-slot:hover {
@@ -1148,7 +1152,7 @@ h1 {
 }
 
 .equipment-slot h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-size: 0.9em;
     color: #ccc;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -1165,6 +1169,8 @@ h1 {
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .equipment-item.empty {
@@ -1197,17 +1203,44 @@ h1 {
     font-weight: bold;
     margin-bottom: 5px;
     font-size: 0.9em;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 .equipment-item-level {
     font-size: 0.8em;
     opacity: 0.8;
+    color: #ffd700;
+}
+
+.equipment-item-effect {
+    font-size: 0.8em;
+    color: #00ff00;
+    margin-bottom: 2px;
 }
 
 .inventory-filters {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 15px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.inventory-filters::-webkit-scrollbar {
+    height: 4px;
+}
+
+.inventory-filters::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.inventory-filters::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
 }
 
 .inventory-filter-btn {
@@ -1219,6 +1252,9 @@ h1 {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    touch-action: manipulation;
 }
 
 .inventory-filter-btn:hover {
@@ -1232,10 +1268,11 @@ h1 {
 
 .equipment-inventory-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
     max-height: 400px;
     overflow-y: auto;
+    padding-right: 5px;
 }
 
 .equipment-inventory-list::-webkit-scrollbar {
@@ -1405,6 +1442,36 @@ h1 {
 /* 添加媒体查询响应式设计 */
 /* 平板设备适配 */
 @media (max-width: 768px) {
+    /* 装备系统优化 */
+    .equipment-slots {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+    
+    .equipment-slot {
+        min-width: 130px;
+        padding: 10px;
+    }
+    
+    .equipment-inventory-list {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    /* 模态框按钮优化 */
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-equip-btn,
+    .modal-upgrade-btn,
+    .modal-delete-btn,
+    .modal-close-btn {
+        width: 100%;
+        flex: 1 1 100%;
+        padding: 12px;
+    }
     body {
         padding: 10px;
     }
@@ -1554,6 +1621,66 @@ h1 {
 
 /* 手机设备适配 (更小型屏幕) */
 @media (max-width: 480px) {
+    /* 装备系统优化 */
+    .equipment-section,
+    .inventory-section {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .equipment-slots {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .equipment-slot {
+        min-width: 0;
+        padding: 8px;
+        min-height: 100px;
+    }
+    
+    .equipment-slot h4 {
+        font-size: 0.8em;
+        margin-bottom: 6px;
+    }
+    
+    .equipment-item {
+        min-height: 60px;
+        padding: 8px;
+    }
+    
+    .equipment-item-name {
+        font-size: 0.8em;
+    }
+    
+    .equipment-item-level,
+    .equipment-item-effect {
+        font-size: 0.75em;
+    }
+    
+    .equipment-inventory-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        max-height: 300px;
+    }
+    
+    .inventory-filters {
+        margin-bottom: 10px;
+    }
+    
+    .inventory-filter-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+    
+    /* 模态框按钮优化 */
+    .modal-equip-btn,
+    .modal-upgrade-btn,
+    .modal-delete-btn,
+    .modal-close-btn {
+        padding: 10px;
+        font-size: 0.9em;
+    }
     body {
         padding: 5px;
     }
@@ -1652,6 +1779,25 @@ h1 {
 
 /* 小屏幕设备适配 (如iPhone SE) */
 @media (max-width: 360px) {
+    /* 模态框更紧凑 */
+    .modal-content {
+        padding: 12px;
+        margin: 5px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+    
+    #equipment-detail-content {
+        padding: 10px;
+    }
+    
+    .equipment-detail-info p {
+        font-size: 0.9em;
+        margin: 6px 0;
+    }
     .container {
         padding: 10px;
     }

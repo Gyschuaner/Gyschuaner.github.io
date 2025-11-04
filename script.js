@@ -1659,9 +1659,6 @@ function promoteEquipment(equipment) {
     // 进阶后等级变为101级
     equipment.level += 1;
     
-    // 每次进阶后等级上限增加100
-    equipment.maxLevel += 100;
-    
     // 初始化effects对象（如果不存在）
     if (!equipment.effects) {
         equipment.effects = {};
@@ -1847,25 +1844,7 @@ function toggleEquipment(equipment) {
     return 'equipped';
 }
 
-// 删除装备
-function deleteEquipment(equipment) {
-    // 从背包中移除
-    const inventoryIndex = state.equipment.inventory.findIndex(e => e.id === equipment.id);
-    if (inventoryIndex !== -1) {
-        state.equipment.inventory.splice(inventoryIndex, 1);
-        return true;
-    }
-    
-    // 检查是否已装备
-    for (const slot in state.equipment.equipped) {
-        if (state.equipment.equipped[slot] && state.equipment.equipped[slot].id === equipment.id) {
-            delete state.equipment.equipped[slot];
-            return true;
-        }
-    }
-    
-    return false;
-}
+// 装备删除功能已移除
 
 // 计算装备总经验加成
 function calculateEquipmentExpBonus() {
@@ -1891,6 +1870,7 @@ function renderEquipmentSlots() {
             if (equipment) {
                 // 确保移除之前的事件监听器
                 slotElement.onclick = null;
+                slotElement.ontouchend = null;
                 
                 slotElement.className = `equipment-item equipment-tier-${equipment.tier + 1}`;
                 slotElement.innerHTML = `
@@ -1901,13 +1881,20 @@ function renderEquipmentSlots() {
                 `;
                 // 使用闭包确保正确的equipment引用
                 const currentEquipment = equipment;
+                // 添加点击和触摸事件支持
                 slotElement.onclick = function() {
+                    showEquipmentDetail(currentEquipment);
+                };
+                slotElement.ontouchend = function(e) {
+                    // 阻止触摸冒泡和默认行为
+                    e.preventDefault();
                     showEquipmentDetail(currentEquipment);
                 };
             } else {
                 slotElement.className = 'equipment-item empty';
                 slotElement.innerHTML = '<span class="empty-text">未装备</span>';
                 slotElement.onclick = null;
+                slotElement.ontouchend = null;
             }
         }
     });
@@ -1938,7 +1925,13 @@ function renderEquipmentInventory(filter = 'all') {
         `;
         // 使用闭包确保正确的equipment引用
         const currentEquipment = equipment;
+        // 添加点击和触摸事件支持
         itemElement.onclick = function() {
+            showEquipmentDetail(currentEquipment);
+        };
+        itemElement.ontouchend = function(e) {
+            // 阻止触摸冒泡和默认行为
+            e.preventDefault();
             showEquipmentDetail(currentEquipment);
         };
         inventoryElement.appendChild(itemElement);
@@ -2158,7 +2151,17 @@ function initEquipmentSystem() {
 function initEquipmentEventListeners() {
     // 背包筛选按钮
     document.querySelectorAll('.inventory-filter-btn').forEach(btn => {
+        // 添加点击事件
         btn.addEventListener('click', () => {
+            document.querySelectorAll('.inventory-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderEquipmentInventory(btn.dataset.filter);
+        });
+        
+        // 添加触摸事件支持
+        btn.addEventListener('touchend', (e) => {
+            // 阻止默认行为和冒泡，避免触发点击事件
+            e.preventDefault();
             document.querySelectorAll('.inventory-filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderEquipmentInventory(btn.dataset.filter);
@@ -2168,7 +2171,8 @@ function initEquipmentEventListeners() {
     // 装备详情模态框按钮 - 直接获取DOM元素，避免依赖equipmentElements对象
     const equipBtn = document.getElementById('equipment-equip-btn');
     if (equipBtn) {
-        equipBtn.addEventListener('click', () => {
+        // 添加点击和触摸事件支持
+        const handleEquipAction = () => {
             if (selectedEquipment) {
                 const action = toggleEquipment(selectedEquipment);
                 renderEquipmentSlots();
@@ -2176,40 +2180,44 @@ function initEquipmentEventListeners() {
                 // 更新模态框按钮文本
                 equipBtn.textContent = action === 'equipped' ? '卸下' : '装备';
             }
+        };
+        equipBtn.addEventListener('click', handleEquipAction);
+        equipBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleEquipAction();
         });
     }
     
     const upgradeBtn = document.getElementById('equipment-upgrade-btn');
     if (upgradeBtn) {
-        upgradeBtn.addEventListener('click', () => {
+        // 添加点击和触摸事件支持
+        const handleUpgradeAction = () => {
             if (selectedEquipment) {
                 showUpgradeModal(selectedEquipment);
             }
+        };
+        upgradeBtn.addEventListener('click', handleUpgradeAction);
+        upgradeBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleUpgradeAction();
         });
     }
     
-    const deleteBtn = document.getElementById('equipment-delete-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-            if (selectedEquipment && confirm('确定要删除这个装备吗？')) {
-                deleteEquipment(selectedEquipment);
-                renderEquipmentSlots();
-                renderEquipmentInventory();
-                const detailModal = document.getElementById('equipment-detail-modal');
-                if (detailModal) {
-                    detailModal.style.display = 'none';
-                }
-            }
-        });
+    // 装备删除按钮及功能已移除
     }
     
     const detailCloseBtn = document.getElementById('equipment-detail-close');
     if (detailCloseBtn) {
-        detailCloseBtn.addEventListener('click', () => {
+        const closeDetailModal = () => {
             const detailModal = document.getElementById('equipment-detail-modal');
             if (detailModal) {
                 detailModal.style.display = 'none';
             }
+        };
+        detailCloseBtn.addEventListener('click', closeDetailModal);
+        detailCloseBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            closeDetailModal();
         });
     }
     
@@ -2295,7 +2303,6 @@ function initEquipmentEventListeners() {
             upgradeModal.style.display = 'none';
         }
     });
-}
 
 // 修改gainExp函数，加入铜币获取
 function originalGainExp(amount, difficulty = 'normal') {
@@ -2583,6 +2590,8 @@ function enhancedSwitchTab(tabId) {
     // 初始化装备系统
     if (tabId === 'equipment') {
         initEquipmentSystem();
+        // 移动端优化：自动滚动到顶部
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -2688,6 +2697,26 @@ function enhancedInitApp() {
     updateSkillsUI(); // 初始化技能UI
     initEventListeners();
     switchTab('tasks'); // 默认显示任务标签
+    
+    // 移动端适配：禁用双击缩放
+    document.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+    });
+    
+    // 移动端适配：禁用拖动缩放
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // 移动端适配：添加触摸友好的标签页切换事件
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            switchTab(btn.dataset.tab);
+        });
+    });
 }
 
 // 启动应用
